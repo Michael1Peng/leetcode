@@ -1,0 +1,772 @@
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Branch and Bound/Binary Search/iterative.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array1DTracer, ChartTracer, LogTracer, Randomize, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+// define tracer variables {
+const chart = new ChartTracer();
+const tracer = new Array1DTracer();
+const logger = new LogTracer();
+Layout.setRoot(new VerticalLayout([chart, tracer, logger]));
+const D = Randomize.Array1D({ N: 15, value: () => Randomize.Integer({ min: 0, max: 50 }), sorted: true });
+tracer.set(D);
+tracer.chart(chart);
+Tracer.delay();
+// }
+
+function BinarySearch(array, element) { // array = sorted array, element = element to be found
+  let minIndex = 0;
+  let maxIndex = array.length - 1;
+  let testElement;
+
+  while (minIndex <= maxIndex) {
+    const middleIndex = Math.floor((minIndex + maxIndex) / 2);
+    testElement = array[middleIndex];
+
+    // visualize {
+    tracer.select(minIndex, maxIndex);
+    Tracer.delay();
+    tracer.patch(middleIndex);
+    logger.println(`Searching at index: ${middleIndex}`);
+    Tracer.delay();
+    tracer.depatch(middleIndex);
+    tracer.deselect(minIndex, maxIndex);
+    // }
+
+    if (testElement < element) {
+      // logger {
+      logger.println('Going right.');
+      // }
+      minIndex = middleIndex + 1;
+    } else if (testElement > element) {
+      // logger {
+      logger.println('Going left.');
+      // }
+      maxIndex = middleIndex - 1;
+    } else {
+      // visualize {
+      logger.println(`${element} is found at position ${middleIndex}!`);
+      tracer.select(middleIndex);
+      // }
+
+      return middleIndex;
+    }
+  }
+
+  // logger {
+  logger.println(`${element} is not found!`);
+  // }
+  return -1;
+}
+
+const element = D[Randomize.Integer({ min: 0, max: D.length - 1 })];
+
+// logger {
+logger.println(`Using iterative binary search to find ${element}`);
+// }
+BinarySearch(D, element);
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Branch and Bound/Binary Search/recursive.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array1DTracer, ChartTracer, LogTracer, Randomize, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+// define tracer variables {
+const chart = new ChartTracer();
+const tracer = new Array1DTracer();
+const logger = new LogTracer();
+Layout.setRoot(new VerticalLayout([chart, tracer, logger]));
+const D = Randomize.Array1D({ N: 15, value: () => Randomize.Integer({ min: 0, max: 50 }), sorted: true });
+tracer.set(D);
+tracer.chart(chart);
+Tracer.delay();
+// }
+
+function BinarySearch(array, element, minIndex, maxIndex) { // array = sorted array, element = element to be found, minIndex = low index, maxIndex = high index
+  if (minIndex > maxIndex) {
+    // logger {
+    logger.println(`${element} is not found!`);
+    // }
+    return -1;
+  }
+
+  const middleIndex = Math.floor((minIndex + maxIndex) / 2);
+  const testElement = array[middleIndex];
+
+  // visualize {
+  tracer.select(minIndex, maxIndex);
+  Tracer.delay();
+  tracer.patch(middleIndex);
+  logger.println(`Searching at index: ${middleIndex}`);
+  Tracer.delay();
+  tracer.depatch(middleIndex);
+  tracer.deselect(minIndex, maxIndex);
+  // }
+
+  if (testElement < element) {
+    // logger {
+    logger.println('Going right.');
+    // }
+    return BinarySearch(array, element, middleIndex + 1, maxIndex);
+  }
+
+  if (testElement > element) {
+    // logger {
+    logger.println('Going left.');
+    // }
+    return BinarySearch(array, element, minIndex, middleIndex - 1);
+  }
+
+  if (testElement === element) {
+    // visualize {
+    logger.println(`${element} is found at position ${middleIndex}!`);
+    tracer.select(middleIndex);
+    // }
+    return middleIndex;
+  }
+
+  // logger {
+  logger.println(`${element} is not found!`);
+  // }
+  return -1;
+}
+
+const element = D[Randomize.Integer({ min: 0, max: D.length - 1 })];
+
+// logger {
+logger.println(`Using binary search to find ${element}`);
+// }
+BinarySearch(D, element, 0, D.length - 1);
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Backtracking/Knight's Tour Problem/code.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array1DTracer, Array2DTracer, LogTracer, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+/*
+For N>3 the time taken by this algorithm is sufficiently high
+Also it is not possible to visualise for N>6 due to stack overflow
+caused by large number of recursive calls
+*/
+const N = 3;
+const board = new Array(N);
+for (let i = board.length - 1; i >= 0; i--) {
+  board[i] = new Array(N);
+}
+
+for (let i = board.length - 1; i >= 0; i--) {
+  for (let j = board[i].length - 1; j >= 0; j--) {
+    board[i][j] = -1;
+  }
+}
+
+/*
+Define the next move of the knight
+*/
+const X = [2, 1, -1, -2, -2, -1, 1, 2];
+const Y = [1, 2, 2, 1, -1, -2, -2, -1];
+
+const pos = new Array(2);
+pos[0] = pos[1] = -1;
+
+// define tracer variables {
+const boardTracer = new Array2DTracer('Board');
+const posTracer = new Array1DTracer('Knight Position');
+const logTracer = new LogTracer('Console');
+boardTracer.set(board);
+posTracer.set(pos);
+Layout.setRoot(new VerticalLayout([boardTracer, posTracer, logTracer]));
+Tracer.delay();
+// }
+
+function knightTour(x, y, moveNum) {
+  if (moveNum === N * N) {
+    return true;
+  }
+
+  for (let i = 0; i < 8; i++) {
+    const nextX = x + X[i];
+    const nextY = y + Y[i];
+
+    // visualize {
+    posTracer.patch(0, nextX);
+    Tracer.delay();
+    posTracer.patch(1, nextY);
+    Tracer.delay();
+    posTracer.depatch(0);
+    posTracer.depatch(1);
+    // }
+    /*
+    Check if knight is still in the board
+    Check that knight does not visit an already visited square
+    */
+    if (nextX >= 0 && nextX < N && nextY >= 0 && nextY < N && board[nextX][nextY] === -1) {
+      board[nextX][nextY] = moveNum;
+
+      // visualize {
+      logTracer.println(`Move to ${nextX},${nextY}`);
+      boardTracer.patch(nextX, nextY, moveNum);
+      Tracer.delay();
+      boardTracer.depatch(nextX, nextY);
+      boardTracer.select(nextX, nextY);
+      // }
+
+      const nextMoveNum = moveNum + 1;
+      if (knightTour(nextX, nextY, nextMoveNum) === true) {
+        return true;
+      }
+
+      // logger {
+      logTracer.println(`No place to move from ${nextX},${nextY}: Backtrack`);
+      // }
+      board[nextX][nextY] = -1; // backtrack
+      // visualize {
+      boardTracer.patch(nextX, nextY, -1);
+      Tracer.delay();
+      boardTracer.depatch(nextX, nextY);
+      boardTracer.deselect(nextX, nextY);
+      // }
+    } else {
+      // logger {
+      logTracer.println(`${nextX},${nextY} is not a valid move`);
+      // }
+    }
+  }
+  return false;
+}
+
+board[0][0] = 0; // start from this position
+pos[0] = 0;
+pos[0] = 0;
+
+// visualize {
+boardTracer.patch(0, 0, 0);
+Tracer.delay();
+posTracer.patch(0, 0);
+Tracer.delay();
+posTracer.patch(1, 0);
+Tracer.delay();
+boardTracer.depatch(0, 0);
+boardTracer.depatch(0, 0);
+posTracer.depatch(0);
+posTracer.depatch(1);
+// }
+
+// logger {
+if (knightTour(0, 0, 1) === false) {
+  logTracer.println('Solution does not exist');
+} else {
+  logTracer.println('Solution found');
+}
+// }
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Divide and Conquer/Merge Sort/bottomUp.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array2DTracer, LogTracer, Randomize, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+// define tracer variables {
+const tracer = new Array2DTracer();
+const logger = new LogTracer();
+Layout.setRoot(new VerticalLayout([tracer, logger]));
+const D = [
+  Randomize.Array1D({ N: 20, value: () => Randomize.Integer({ min: 0, max: 50 }) }),
+  Randomize.Array1D({ N: 20, value: () => Randomize.Integer({ min: 0, max: 0 }) }),
+];
+
+tracer.set(D);
+Tracer.delay();
+// }
+
+// logger {
+logger.println(`original array = [${D[0].join(', ')}]`);
+// }
+
+function mergeSort(start, end) {
+  if (Math.abs(end - start) <= 1) return;
+
+  let mergeFrom = 0;
+  let mergeTo = 1;
+  let width;
+  let i;
+  for (width = 1; width < end; width *= 2) {
+    // visualize {
+    logger.println(`merging arrays of width: ${width}`);
+    // }
+    for (i = 0; i < end; i += 2 * width) {
+      merge(mergeFrom, i, Math.min(i + width, end), Math.min(i + 2 * width, end), mergeTo);
+    }
+    // this could be copy(mergeTo, mergeFrom, start, end);
+    // but it is more effecient to swap the input arrays
+    // if you did copy here, you wouldn't need the copy at the end
+    mergeFrom = (mergeFrom === 0 ? 1 : 0);
+    mergeTo = 1 - mergeFrom;
+  }
+  if (mergeFrom !== 0) {
+    // visualize {
+    logger.println('final copy to original');
+    // }
+    copy(mergeFrom, mergeTo, start, end);
+  }
+}
+
+function merge(mergeFrom, start, middle, end, mergeTo) {
+  let i = start;
+  let j = middle;
+  let k;
+  // in an actual merge implementation, mergeFrom and mergeTo would be arrays
+  // here for the ability to trace what is going on better, the arrays are D[mergeFrom] and D[mergeTo]
+  // visualize {
+  logger.println(`merging segments [${start}..${middle}] and [${middle}..${end}]`);
+  tracer.selectRow(mergeFrom, start, end - 1);
+  Tracer.delay();
+  tracer.deselectRow(mergeFrom, start, end - 1);
+  // }
+
+  for (k = start; k < end; k++) {
+    // visualize {
+    if (j < end) {
+      tracer.select(mergeFrom, j);
+    }
+    if (i < middle) {
+      tracer.select(mergeFrom, i);
+    }
+    if (i < middle && j < end) {
+      logger.println(`compare index ${i} and ${j}, values: ${D[mergeFrom][i]} and ${D[mergeFrom][j]}`);
+      Tracer.delay();
+    }
+    // }
+
+    if (i < middle && (j >= end || D[mergeFrom][i] <= D[mergeFrom][j])) {
+      // visualize {
+      if (j < end) {
+        logger.println('writing smaller value to output');
+      } else {
+        logger.println(`copying index ${i} to output`);
+      }
+      tracer.patch(mergeTo, k, D[mergeFrom][i]);
+      Tracer.delay();
+      tracer.depatch(mergeTo, k);
+      tracer.deselect(mergeFrom, i);
+      // }
+
+      D[mergeTo][k] = D[mergeFrom][i];
+      i += 1;
+    } else {
+      // visualize {
+      if (i < middle) {
+        logger.println('writing smaller value to output');
+      } else {
+        logger.println(`copying index ${j} to output`);
+      }
+      tracer.patch(mergeTo, k, D[mergeFrom][j]);
+      Tracer.delay();
+      tracer.depatch(mergeTo, k);
+      tracer.deselect(mergeFrom, j);
+      // }
+
+      D[mergeTo][k] = D[mergeFrom][j];
+      j += 1;
+    }
+  }
+}
+
+function copy(mergeFrom, mergeTo, start, end) {
+  let i;
+  for (i = start; i < end; i++) {
+    // visualize {
+    tracer.select(mergeFrom, i);
+    tracer.patch(mergeTo, i, D[mergeFrom][i]);
+    Tracer.delay();
+    // }
+
+    D[mergeTo][i] = D[mergeFrom][i];
+
+    // visualize {
+    tracer.deselect(mergeFrom, i);
+    tracer.depatch(mergeTo, i);
+    // }
+  }
+}
+
+mergeSort(0, D[0].length);
+// logger {
+logger.println(`sorted array = [${D[0].join(', ')}]`);
+// }
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Dynamic Programming/Levenshtein's Edit Distance/code.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array2DTracer, LogTracer, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+const str1 = 'stack';
+const str2 = 'racket';
+const table = new Array(str1.length + 1);
+
+for (let i = 0; i < str1.length + 1; i++) {
+  table[i] = new Array(str2.length + 1).fill(-1);
+  table[i][0] = i;
+}
+for (let i = 1; i < str2.length + 1; i++) {
+  table[0][i] = i;
+}
+
+// define tracer variables {
+const tracer = new Array2DTracer('Distance Table');
+const logger = new LogTracer();
+Layout.setRoot(new VerticalLayout([tracer, logger]));
+tracer.set(table);
+Tracer.delay();
+// }
+
+// logger {
+logger.println('Initialized DP Table');
+logger.println(`Y-Axis (Top to Bottom): ${str1}`);
+logger.println(`X-Axis (Left to Right): ${str2}`);
+// }
+
+const dist = (function editDistance(str1, str2, table) {
+  // display grid with words
+  // logger {
+  logger.println(`*** ${str2.split('').join(' ')}`);
+  table.forEach((item, index) => {
+    const character = (index === 0) ? '*' : str1[index - 1];
+    logger.println(`${character}\t${item}`);
+  });
+  // }
+
+  // begin ED execution
+  for (let i = 1; i < str1.length + 1; i++) {
+    for (let j = 1; j < str2.length + 1; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        // visualize {
+        tracer.select(i - 1, j - 1);
+        Tracer.delay();
+        // }
+        table[i][j] = table[i - 1][j - 1];
+        // visualize {
+        tracer.patch(i, j, table[i][j]);
+        Tracer.delay();
+        tracer.depatch(i, j);
+        tracer.deselect(i - 1, j - 1);
+        // }
+      } else {
+        // visualize {
+        tracer.select(i - 1, j);
+        tracer.select(i, j - 1);
+        tracer.select(i - 1, j - 1);
+        Tracer.delay();
+        // }
+        table[i][j] = Math.min(table[i - 1][j], table[i][j - 1], table[i - 1][j - 1]) + 1;
+        // visualize {
+        tracer.patch(i, j, table[i][j]);
+        Tracer.delay();
+        tracer.depatch(i, j);
+        tracer.deselect(i - 1, j);
+        tracer.deselect(i, j - 1);
+        tracer.deselect(i - 1, j - 1);
+        // }
+      }
+    }
+  }
+
+  // visualize {
+  tracer.select(str1.length, str2.length);
+  // }
+  return table[str1.length][str2.length];
+}(str1, str2, table));
+
+// logger {
+logger.println(`Minimum Edit Distance: ${dist}`);
+// }
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Dynamic Programming/Shortest Common Supersequence/code.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array1DTracer, Array2DTracer, LogTracer, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+const string1 = 'AGGTAB';
+const string2 = 'GXTXAYB';
+const m = string1.length;
+const n = string2.length;
+const A = new Array(m + 1);
+for (let i = 0; i < m + 1; i++) {
+  A[i] = new Array(n + 1);
+}
+
+// define tracer variables {
+const tracer1 = new Array1DTracer('String 1');
+const tracer2 = new Array1DTracer('String 2');
+const tracer3 = new Array2DTracer('Memo Table');
+const logger = new LogTracer();
+Layout.setRoot(new VerticalLayout([tracer1, tracer2, tracer3, logger]));
+tracer1.set(string1);
+tracer2.set(string2);
+tracer3.set(A);
+Tracer.delay();
+// }
+
+let i;
+let j;
+
+// Fill memo table in bottom up manner
+for (i = 0; i <= m; i++) {
+  for (j = 0; j <= n; j++) {
+    if (i === 0) {
+      A[i][j] = j;
+    } else if (j === 0) {
+      A[i][j] = i;
+    } else if (string1[i - 1] === string2[j - 1]) {
+      // visualize {
+      tracer1.select(i - 1);
+      Tracer.delay();
+      tracer2.select(j - 1);
+      Tracer.delay();
+      tracer3.select(i - 1, j - 1);
+      Tracer.delay();
+      // }
+
+      A[i][j] = A[i - 1][j - 1] + 1;
+
+      // visualize {
+      tracer1.deselect(i - 1);
+      tracer2.deselect(j - 1);
+      tracer3.deselect(i - 1, j - 1);
+      // }
+    } else {
+      // visualize {
+      tracer3.select(i - 1, j);
+      Tracer.delay();
+      tracer3.select(i, j - 1);
+      Tracer.delay();
+      // }
+
+      if (A[i - 1][j] < A[i][j - 1]) {
+        A[i][j] = 1 + A[i - 1][j];
+      } else {
+        A[i][j] = 1 + A[i][j - 1];
+      }
+
+      // visualize {
+      tracer3.deselect(i - 1, j);
+      tracer3.deselect(i, j - 1);
+      // }
+    }
+    // visualize {
+    tracer3.patch(i, j, A[i][j]);
+    Tracer.delay();
+    tracer3.depatch(i, j);
+    // }
+  }
+}
+
+// logger {
+logger.println(`Shortest Common Supersequence is ${A[m][n]}`);
+// }
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Dynamic Programming/Ugly Numbers/code.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, Array1DTracer, LogTracer, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+const N = 15;
+const A = new Array(N);
+for (let i = N - 1; i >= 0; i--) {
+  A[i] = 0;
+}
+A[0] = 1; // By convention 1 is an ugly number
+
+const M = [2, 3, 5]; // multiples of 2, 3, 5 respectively
+const I = [0, 0, 0]; // iterators of 2, 3, 5 respectively
+
+// define tracer variables {
+const tracer = new Array1DTracer('Ugly Numbers');
+const tracer2 = new Array1DTracer('Multiples of 2, 3, 5');
+const tracer3 = new Array1DTracer(' Iterators I0, I1, I2 ');
+const logger = new LogTracer();
+Layout.setRoot(new VerticalLayout([tracer, tracer2, tracer3, logger]));
+tracer.set(A);
+tracer2.set(M);
+tracer3.set(I);
+Tracer.delay();
+// }
+
+for (let i = 1; i < N; i++) {
+  // next is minimum of m2, m3 and m5
+  const next = (M[0] <= M[1]) ? (M[0] <= M[2]) ? M[0] : M[2] : (M[1] <= M[2]) ? M[1] : M[2];
+  // logger {
+  logger.println(` Minimum of ${M[0]}, ${M[1]}, ${M[2]} : ${next}`);
+  // }
+  A[i] = next;
+
+  // visualize {
+  tracer.patch(i, A[i]);
+  Tracer.delay();
+  tracer.depatch(i);
+  // }
+
+  if (next === M[0]) {
+    I[0]++;
+    M[0] = A[I[0]] * 2;
+    // visualize {
+    tracer2.patch(0, M[0]);
+    Tracer.delay();
+    tracer3.patch(0, I[0]);
+    Tracer.delay();
+    tracer2.depatch(0);
+    tracer3.depatch(0);
+    // }
+  }
+  if (next === M[1]) {
+    I[1]++;
+    M[1] = A[I[1]] * 3;
+    // visualize {
+    tracer2.patch(1, M[1]);
+    Tracer.delay();
+    tracer3.patch(1, I[1]);
+    Tracer.delay();
+    tracer2.depatch(1);
+    tracer3.depatch(1);
+    // }
+  }
+  if (next === M[2]) {
+    I[2]++;
+    M[2] = A[I[2]] * 5;
+    // visualize {
+    tracer2.patch(2, M[2]);
+    Tracer.delay();
+    tracer3.patch(2, I[2]);
+    Tracer.delay();
+    tracer2.depatch(2);
+    tracer3.depatch(2);
+    // }
+  }
+}
+
+</File Content>
+</Opened Files>
+<Opened Files>
+<File Name>
+../../../../../../repositories/leetcode/algorithm-visualizer/Branch and Bound/Binary Search Tree/search.js
+</File Name>
+<File Content>
+// import visualization libraries {
+const { Tracer, GraphTracer, LogTracer, Randomize, Layout, VerticalLayout } = require('algorithm-visualizer');
+// }
+
+const G = [ // G[i][j] indicates whether the path from the i-th node to the j-th node exists or not
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+];
+
+const T = [ // mapping to G as a binary tree , [i][0] indicates left child, [i][1] indicates right child
+  [-1, -1],
+  [0, 2],
+  [-1, -1],
+  [1, 4],
+  [-1, -1],
+  [3, 8],
+  [-1, 7],
+  [-1, -1],
+  [6, 10],
+  [-1, -1],
+  [9, -1],
+];
+
+const key = Randomize.Integer({ min: 0, max: G.length - 1 }); // item to be searched
+// define tracer variables {
+const tracer = new GraphTracer(' Binary Search Tree ');
+const logger = new LogTracer(' Log ');
+Layout.setRoot(new VerticalLayout([tracer, logger]));
+tracer.set(G);
+tracer.layoutTree(5);
+tracer.log(logger);
+Tracer.delay();
+// }
+
+function bst(item, node, parent) { // node = current node , parent = previous node
+  // visualize {
+  tracer.visit(node, parent);
+  Tracer.delay();
+  // }
+  if (item === node) { // key found
+    // logger {
+    logger.println(' Match Found ');
+    // }
+  } else if (item < node) { // key less than value of current node
+    if (T[node][0] === -1) {
+      // logger {
+      logger.println(' Not Found ');
+      // }
+    } else {
+      bst(item, T[node][0], node);
+    }
+  } else { // key greater than value of current node
+    if (T[node][1] === -1) {
+      // logger {
+      logger.println(' Not Found ');
+      // }
+    } else {
+      bst(item, T[node][1], node);
+    }
+  }
+}
+
+// logger {
+logger.println(`Finding number ${key}`);
+// }
+bst(key, 5); // node with key 5 is the root
+
+</File Content>
+</Opened Files>
