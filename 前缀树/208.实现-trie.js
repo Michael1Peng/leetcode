@@ -29,7 +29,7 @@ class Trie {
      * 初始化前缀树数据结构
      */
     constructor() {
-        this.root = new TrieNode('/');  // 创建根节点，使用 '/' 作为哨兵
+        this.root = new TrieNode('/')
     }
 
     /**
@@ -42,13 +42,15 @@ class Trie {
         // 遍历单词的每个字符
         for (let i = 0; i < word.length; i++) {
             const char = word[i];
-            if(!node.children.has(char)) {
-                // 如果字符不存在，创建新节点
+            // 如果字符不存在，创建新的节点
+            if (!node.children.has(char)) {
                 const newNode = new TrieNode(char);
                 node.children.set(char, newNode);
+                node = newNode;
+            } else {
+                // 如果字符存在，移动到子节点
+                node = node.children.get(char);
             }
-            // 移动到子节点
-            node = node.children.get(char);
         }
         // 标记单词结尾
         node.isLeaf = true;
